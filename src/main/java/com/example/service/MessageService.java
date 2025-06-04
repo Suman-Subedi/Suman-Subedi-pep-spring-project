@@ -10,6 +10,8 @@ import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
@@ -61,6 +63,33 @@ public class MessageService {
 
         return null;
     }
+
+    // Update Message
+    @Transactional
+    public int updateMessageText(Integer messageId, String newMessageText){
+        //Validate new Message Text
+        if(newMessageText == null || newMessageText.trim().isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Message Text cannot be blank");
+        }
+
+        if(newMessageText.length() > 255){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Message text cannot exceed 255 characters.");
+        }
+
+        //Update if message exits
+        return messageRepository.findById(messageId).map(message -> {
+            message.setMessageText(newMessageText);
+            messageRepository.save(message);
+            return 1;
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Message not found."));
+    }
+
+    // Retreive all the message by User
+
+    public List <Message> getMessageByUser(Integer postedBy){
+        return messageRepository.findByPostedBy(postedBy);
+    }
+
 
 
 }
