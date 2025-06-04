@@ -34,5 +34,17 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public Account login(Account loginRequest){
+        //Find accouny by Username
+        Account account = accountRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Credentials"));
+
+        // Verify password matches
+        if(!account.getPassword().equals(loginRequest.getPassword())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Credentials");
+        }
+        
+        return account;
+    }
+
     
 }
